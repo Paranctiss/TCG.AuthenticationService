@@ -25,8 +25,8 @@ public class CountryController : ControllerBase
     {
         try
         {
-            var coutries = await _mediator.Send(new GetAllCountryQuery(), cancellationToken);
-            return Ok(coutries);
+            var countries = await _mediator.Send(new GetAllCountryQuery(), cancellationToken);
+            return Ok(countries);
         }
         catch (Exception ex)
         {

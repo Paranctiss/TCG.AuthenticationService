@@ -8,10 +8,7 @@ using TCG.Common.MySqlDb;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplication();
 builder.Services.AddSwaggerGen();
@@ -23,8 +20,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
         builder => builder
-            .WithOrigins("http://localhost:8100") // Remplacez par l'URL de votre application Ionic
-            .AllowAnyMethod()
+            .WithOrigins("http://localhost:8100")
             .AllowAnyHeader()
             .AllowCredentials());
 });
