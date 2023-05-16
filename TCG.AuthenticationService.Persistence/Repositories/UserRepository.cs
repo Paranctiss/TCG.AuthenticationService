@@ -18,23 +18,4 @@ public class UserRepository : Repository<User>, IUserRepository
     {
         return await _dbContext.Users.Where(x => x.Sub == guid).FirstAsync();
     }
-    
-    public async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken)
-    {
-        using (var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken))
-        {
-            try
-            {
-                await action();
-
-                await transaction.CommitAsync(cancellationToken);
-            }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
-        }
-    }
-
 }
