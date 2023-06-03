@@ -16,6 +16,6 @@ public class UserRepository : Repository<User>, IUserRepository
     
     public async Task<User> GetSub(Guid guid, CancellationToken cancellationToken)
     {
-        return await _dbContext.Users.Where(x => x.Sub == guid).FirstAsync();
+        return await _dbContext.Users.Where(x => x.Sub == guid).SingleOrDefaultAsync();
     }
 }

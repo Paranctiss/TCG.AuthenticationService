@@ -3,12 +3,13 @@ using System.Net.Http.Headers;
 using System.Text;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using TCG.AuthenticationService.Application.Contracts;
-using TCG.AuthenticationService.Domain;
 using TCG.AuthenticationService.Persistence.ExternalsApi.KeycloakExternalApi.ModelsKeycloakExternalApi;
 using TCG.CatalogService.Application.Keycloak.DTO.Request;
 using TCG.Common.Middlewares.MiddlewareException;
+using TCG.Common.Settings;
 
 namespace TCG.AuthenticationService.Persistence.ExternalsApi.KeycloakExternalApi.RepositoriesKeycloakExternalApi;
 
@@ -17,30 +18,27 @@ public class KeycloakRepository : IKeycloakRepository
     private readonly IHttpClientFactory _clientFactory;
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
+    private readonly KeycloakSetting _keycloakSetting;
 
-    public KeycloakRepository(IHttpClientFactory clientFactory, IConfiguration configuration, IMapper mapper)
+    public KeycloakRepository(IHttpClientFactory clientFactory, IConfiguration configuration, IMapper mapper, IOptions<KeycloakSetting> keycloakSetting)
     {
         _clientFactory = clientFactory;
         _configuration = configuration;
+        _keycloakSetting = keycloakSetting.Value;
         _mapper = mapper;
     }
     
     public async Task<string> GetAdminAccessTokenAsync()
     {
         var httpClient = GetConfigHttpClient();
-        var clientId = _configuration["Keycloak:ClientId"];
-        var clientSecret = _configuration["Keycloak:ClientSecret"];
-        var realm = _configuration["Keycloak:Realm"];
-
-        var tokenEndpoint = $"{httpClient.BaseAddress}/realms/{realm}/protocol/openid-connect/token";
         var requestBody = new FormUrlEncodedContent(new[]
         {
             new KeyValuePair<string, string>("grant_type", "client_credentials"),
-            new KeyValuePair<string, string>("client_id", clientId),
-            new KeyValuePair<string, string>("client_secret", clientSecret)
+            new KeyValuePair<string, string>("client_id", _keycloakSetting.ClientId),
+            new KeyValuePair<string, string>("client_secret", _keycloakSetting.ClientSecret)
         });
 
-        var response = await httpClient.PostAsync(tokenEndpoint, requestBody);
+        var response = await httpClient.PostAsync(_keycloakSetting.TokenEndpoint, requestBody);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
@@ -52,22 +50,17 @@ public class KeycloakRepository : IKeycloakRepository
     public async Task<string> AuthenticateUserAsync(UserLogin userLogin)
     {
         var httpClient = GetConfigHttpClient();
-        var clientId = _configuration["Keycloak:ClientId"];
-        var clientSecret = _configuration["Keycloak:ClientSecret"];
-        var realm = _configuration["Keycloak:Realm"];
-
-        var tokenEndpoint = $"{httpClient.BaseAddress}/realms/{realm}/protocol/openid-connect/token";
         var requestBody = new FormUrlEncodedContent(new[]
         {
             new KeyValuePair<string, string>("grant_type", "password"),
-            new KeyValuePair<string, string>("client_id", clientId),
-            new KeyValuePair<string, string>("client_secret", clientSecret),
+            new KeyValuePair<string, string>("client_id", _keycloakSetting.ClientId),
+            new KeyValuePair<string, string>("client_secret", _keycloakSetting.ClientSecret),
             new KeyValuePair<string, string>("scope", "openid"),
             new KeyValuePair<string, string>("username", userLogin.Email),
             new KeyValuePair<string, string>("password", userLogin.Password)
         });
 
-        var response = await httpClient.PostAsync(tokenEndpoint, requestBody);
+        var response = await httpClient.PostAsync(_keycloakSetting.TokenEndpoint, requestBody);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();
@@ -79,12 +72,9 @@ public class KeycloakRepository : IKeycloakRepository
     public async Task<Guid> GetUserInfoAsync(string accessToken)
     {
         var httpClient = GetConfigHttpClient();
-        var realm = _configuration["Keycloak:Realm"];
-
-        var userInfoEndpoint = $"{httpClient.BaseAddress}/realms/{realm}/protocol/openid-connect/userinfo";
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = await httpClient.GetAsync(userInfoEndpoint);
+        var response = await httpClient.GetAsync(_keycloakSetting.UserInfoEndpoint);
         response.EnsureSuccessStatusCode();
         
         var content = await response.Content.ReadAsStringAsync();
@@ -98,7 +88,6 @@ public class KeycloakRepository : IKeycloakRepository
         var httpClient = GetConfigHttpClient();
         try
         {
-            var createUserEndpoint = $"{httpClient.BaseAddress}admin/realms/Tcg-Place-Realm/users";
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             var user = new
@@ -128,7 +117,7 @@ public class KeycloakRepository : IKeycloakRepository
             };
 
             var requestBody = new StringContent(JsonConvert.SerializeObject(user), Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync(createUserEndpoint, requestBody);
+            var response = await httpClient.PostAsync(_keycloakSetting.AdminUsersEndpoint, requestBody);
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -152,9 +141,8 @@ public class KeycloakRepository : IKeycloakRepository
         try
         {
             var httpClient = GetConfigHttpClient();
-            var realm = _configuration["Keycloak:Realm"];
 
-            var searchUserEndpoint = $"{httpClient.BaseAddress}/admin/realms/{realm}/users?username={username}";
+            var searchUserEndpoint = $"{_keycloakSetting.AdminUsersEndpoint}?username={username}";
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             var response = await httpClient.GetAsync(searchUserEndpoint);
@@ -180,7 +168,7 @@ public class KeycloakRepository : IKeycloakRepository
     private HttpClient GetConfigHttpClient()
     {
         var httpClient = _clientFactory.CreateClient();
-        var baseUrl = _configuration["Keycloak:BaseUrl"];
+        var baseUrl = _keycloakSetting.BaseUrl;
         httpClient.BaseAddress = new Uri(baseUrl);
         return httpClient;
     }

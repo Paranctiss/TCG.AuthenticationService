@@ -13,10 +13,12 @@ namespace TCG.AuthenticationService.Controllers;
 public class RegistrationController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<RegistrationController> _logger;
 
-    public RegistrationController(IMediator mediator)
+    public RegistrationController(IMediator mediator, ILogger<RegistrationController> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
     
     [HttpPost("authenticate")]
@@ -51,9 +53,15 @@ public class RegistrationController : ControllerBase
             var userInfo = await _mediator.Send(new UserInfoQuery(token));
             return Ok(new { user = userInfo });
         }
+        catch (NotFoundException ex)
+        {
+            _logger.LogError(ex, "User not found in database");
+            return StatusCode(404, "User not found in databse.");
+        }
         catch (Exception ex)
         {
-            return StatusCode(500, "An error occurred while processing your registration.");
+            _logger.LogError(ex, "Unexpected error while processing your request.");
+            return StatusCode(500, "An unexpected error occurred while processing your request.");
         }
     }
 
