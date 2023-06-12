@@ -40,14 +40,16 @@ public class RegistrationController : ControllerBase
         }
     }
     
-    [HttpPost("user-info")]
-    public async Task<IActionResult> UserInfo([FromBody] TokenRequest token)
+    [HttpGet("user-info")]
+    public async Task<IActionResult> UserInfo()
     {
+        string authorizationHeader = HttpContext.Request.Headers["Authorization"];
+
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-
+        string token = authorizationHeader.Substring("Bearer ".Length);
         try
         {
             var userInfo = await _mediator.Send(new UserInfoQuery(token));

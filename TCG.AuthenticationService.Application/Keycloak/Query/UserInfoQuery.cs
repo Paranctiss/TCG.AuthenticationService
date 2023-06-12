@@ -7,7 +7,7 @@ using TCG.Common.Middlewares.MiddlewareException;
 
 namespace TCG.AuthenticationService.Application.Keycloak.Query;
 
-public record UserInfoQuery(TokenRequest token) : IRequest<User>;
+public record UserInfoQuery(string token) : IRequest<User>;
 
 public class UserInfoQueryHandler : IRequestHandler<UserInfoQuery, User>
 {
@@ -27,7 +27,7 @@ public class UserInfoQueryHandler : IRequestHandler<UserInfoQuery, User>
     {
         try
         {
-            var userSub = await _keycloakService.GetUserInfoAsync(request.token.Token);
+            var userSub = await _keycloakService.GetUserInfoAsync(request.token);
             var userInfo = await _userRepository.GetSub(userSub, cancellationToken);
 
             // Check if the user exists in the database

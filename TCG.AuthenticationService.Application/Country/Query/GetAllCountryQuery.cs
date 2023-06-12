@@ -25,6 +25,7 @@ public class GetAllCountryQueryHandler : IRequestHandler<GetAllCountryQuery, IEn
         try
         {
             var countries = await _countryRepository.GetAllAsync(cancellationToken);
+            _logger.LogInformation("Seri Log is Working");
             return countries;
         }
         catch (Exception ex)

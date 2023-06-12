@@ -6,12 +6,15 @@ using TCG.AuthenticationService.Persistence.ExternalsApi.KeycloakExternalApi.Rep
 using TCG.CatalogService.Application;
 using TCG.Common.Authentification;
 using TCG.Common.Externals;
+using TCG.Common.Logging;
 using TCG.Common.MySqlDb;
 using TCG.Common.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 var Configuration = builder.Configuration;
 
+builder.Logging.ClearProviders();
+builder.AddSerilogLogging();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplication();
