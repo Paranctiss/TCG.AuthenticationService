@@ -67,6 +67,27 @@ public class RegistrationController : ControllerBase
         }
     }
 
+    [HttpGet("profile/{idUser}")]
+    public async Task<IActionResult> GetProfileInfos(int idUser, [FromHeader] string authorization)
+    {
+        string token = authorization.Substring("Bearer ".Length);
+        var CurrentUserInfos = await _mediator.Send(new UserInfoQuery(token));
+
+
+            var userProfileInfos = await _mediator.Send(new GetUserProfileQuery(idUser));
+
+            if(CurrentUserInfos.Id == idUser)
+            {
+                userProfileInfos.IsOwner = true;
+            }
+            else
+            {
+                userProfileInfos.IsOwner = false;
+            }
+
+            return Ok(userProfileInfos);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] UserRegistration userRegistration)
     {
