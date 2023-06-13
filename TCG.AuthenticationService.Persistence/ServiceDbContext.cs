@@ -14,8 +14,8 @@ public class ServiceDbContext : DbContext
     }
     public ServiceDbContext(DbContextOptions<ServiceDbContext> options, IConfiguration configuration) : base(options)
     {
-        Database.EnsureCreated();
         _configuration = configuration;
+        Database.Migrate();
     }
 
     public DbSet<User> Users { get; set; }

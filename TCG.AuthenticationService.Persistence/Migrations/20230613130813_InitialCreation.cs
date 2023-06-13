@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace TCG.AuthenticationService.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
