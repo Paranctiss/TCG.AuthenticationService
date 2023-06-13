@@ -7,6 +7,7 @@ using TCG.CatalogService.Application;
 using TCG.Common.Authentification;
 using TCG.Common.Externals;
 using TCG.Common.Logging;
+using TCG.Common.Middlewares.MiddlewareException;
 using TCG.Common.MySqlDb;
 using TCG.Common.Settings;
 
@@ -32,8 +33,12 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowCredentials());
 });
+
+builder.Services.AddMassTransitWithRabbitMQ();
 var app = builder.Build();
 app.UseCors("CorsPolicy");
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -47,5 +52,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.ConfigureCustomExceptionMiddleware();
 
 app.Run();

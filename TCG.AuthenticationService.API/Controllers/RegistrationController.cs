@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TCG.AuthenticationService.Application.Keycloak.Command;
 using TCG.AuthenticationService.Application.Keycloak.Query;
+using TCG.AuthenticationService.Domain;
 using TCG.CatalogService.Application.Keycloak.DTO.Request;
 using TCG.CatalogService.Application.Keycloak.DTO.Response;
 using TCG.Common.Middlewares.MiddlewareException;
@@ -68,12 +69,22 @@ public class RegistrationController : ControllerBase
     }
 
     [HttpGet("profile/{idUser}")]
-    public async Task<IActionResult> GetProfileInfos(int idUser, [FromHeader] string authorization)
+    public async Task<IActionResult> GetProfileInfos(int idUser, [FromHeader] string authorization = "")
     {
-        string token = authorization.Substring("Bearer ".Length);
-        var CurrentUserInfos = await _mediator.Send(new UserInfoQuery(token));
+        User CurrentUserInfos = new User();
 
+        if(authorization != "")
+        {
+            string token = authorization.Substring("Bearer ".Length);
+            CurrentUserInfos = await _mediator.Send(new UserInfoQuery(token));
+        }
+        else
+        {
+            CurrentUserInfos.Id = 0;
+        }
+       
 
+            
             var userProfileInfos = await _mediator.Send(new GetUserProfileQuery(idUser));
 
             if(CurrentUserInfos.Id == idUser)

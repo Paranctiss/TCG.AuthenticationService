@@ -6,4 +6,6 @@ namespace TCG.AuthenticationService.Application.Contracts;
 public interface IUserRepository : IRepository<User>
 {
     Task<User> GetSub(Guid guid, CancellationToken cancellationToken);
+
+    Task<User> GetByUserId(int id);
 }

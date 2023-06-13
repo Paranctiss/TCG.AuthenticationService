@@ -18,4 +18,9 @@ public class UserRepository : Repository<User>, IUserRepository
     {
         return await _dbContext.Users.Where(x => x.Sub == guid).SingleOrDefaultAsync();
     }
+
+    public async Task<User> GetByUserId(int idUser)
+    {
+        return await _dbContext.Users.Where(x => x.Id == idUser).SingleOrDefaultAsync();
+    }
 }
