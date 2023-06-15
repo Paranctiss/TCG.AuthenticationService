@@ -27,11 +27,10 @@ public class UserByTokenConsumer : IConsumer<UserByToken>
     public async Task Consume(ConsumeContext<UserByToken> context)
     {
         var message = context.Message;
-
         if (message != null)
         {
             string token = message.Token;
-            
+        
 
             var userSub = await _keycloakService.GetUserInfoAsync(token);
             var userInfo = await _userRepository.GetSub(userSub, message.cancellationToken);
@@ -42,7 +41,8 @@ public class UserByTokenConsumer : IConsumer<UserByToken>
                 throw new NotFoundException("User does not exist in the database");
             }
 
-            await context.RespondAsync(userInfo.Id);
+            var response = new UserByTokenResponse(userInfo.Id);
+            await context.RespondAsync(response);
         }
     }
 }
