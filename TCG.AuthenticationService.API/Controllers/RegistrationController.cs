@@ -75,16 +75,25 @@ public class RegistrationController : ControllerBase
 
         if(authorization != "")
         {
-            string token = authorization.Substring("Bearer ".Length);
-            CurrentUserInfos = await _mediator.Send(new UserInfoQuery(token));
+            try
+            {
+                string token = authorization.Substring("Bearer ".Length);
+                CurrentUserInfos = await _mediator.Send(new UserInfoQuery(token));
+            }
+            catch (Exception e) { }
+            finally
+            {
+                CurrentUserInfos.Id = 0;
+            }
+               
+           
         }
         else
         {
             CurrentUserInfos.Id = 0;
         }
-       
-
-        var userProfileInfos = await _mediator.Send(new GetUserProfileQuery(idUser));
+            
+            var userProfileInfos = await _mediator.Send(new GetUserProfileQuery(idUser));
 
         if(CurrentUserInfos.Id == idUser)
         {
