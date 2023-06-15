@@ -38,7 +38,7 @@ public class UserByTokenConsumer : IConsumer<UserByToken>
             if (userInfo == null)
             {
                 // User does not exist in the database
-                throw new NotFoundException("User does not exist in the database");
+                throw new NotFoundException("User does not exist in the database ");
             }
 
             var response = new UserByTokenResponse(userInfo.Id);
