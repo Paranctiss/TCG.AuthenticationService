@@ -75,8 +75,11 @@ public class KeycloakRepository : IKeycloakRepository
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = await httpClient.GetAsync(_keycloakSetting.UserInfoEndpoint);
+        if (response.ReasonPhrase == "Unauthorized")
+        {
+            throw new UnAuthorizedException();
+        }
         response.EnsureSuccessStatusCode();
-        
         var content = await response.Content.ReadAsStringAsync();
         var userInfo = JsonConvert.DeserializeObject<KeycloakUser>(content);
         var item = Guid.Parse(userInfo.Sub);

@@ -84,19 +84,18 @@ public class RegistrationController : ControllerBase
         }
        
 
-            
-            var userProfileInfos = await _mediator.Send(new GetUserProfileQuery(idUser));
+        var userProfileInfos = await _mediator.Send(new GetUserProfileQuery(idUser));
 
-            if(CurrentUserInfos.Id == idUser)
-            {
-                userProfileInfos.IsOwner = true;
-            }
-            else
-            {
-                userProfileInfos.IsOwner = false;
-            }
+        if(CurrentUserInfos.Id == idUser)
+        {
+            userProfileInfos.IsOwner = true;
+        }
+        else
+        {
+            userProfileInfos.IsOwner = false;
+        }
 
-            return Ok(userProfileInfos);
+        return Ok(userProfileInfos);
     }
 
     [HttpPost]
@@ -121,4 +120,5 @@ public class RegistrationController : ControllerBase
             return new StatusCodeResult(500);
         }
     }
+
 }
