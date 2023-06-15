@@ -24,6 +24,7 @@ public static class ApplicationDependencyInjection
         serviceCollection.AddMassTransit(configure =>
         {
             configure.AddConsumer<UserByIdConsumer>();
+            configure.AddConsumer<UserByTokenConsumer>();
             configure.UsingRabbitMq((context, configurator) =>
             {
                 var config = context.GetService<IConfiguration>();
@@ -35,8 +36,14 @@ public static class ApplicationDependencyInjection
                 configurator.ReceiveEndpoint("authservice", e =>
                 {
                     e.UseMessageRetry(r => r.Interval(2, 3000));
+                    e.ConfigureConsumer<UserByTokenConsumer>(context);
                     e.ConfigureConsumer<UserByIdConsumer>(context);
                 });
+                //configurator.ReceiveEndpoint("authservice", e =>
+                //{
+                //    e.UseMessageRetry(r => r.Interval(2, 3000));
+                //    e.ConfigureConsumer<UserByTokenConsumer>(context);
+                //});
             });
         });
         //Start rabbitmq bus pour exanges
