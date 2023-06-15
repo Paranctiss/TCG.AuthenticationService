@@ -36,14 +36,13 @@ public static class ApplicationDependencyInjection
                 configurator.ReceiveEndpoint("authservice", e =>
                 {
                     e.UseMessageRetry(r => r.Interval(2, 3000));
-                    e.ConfigureConsumer<UserByTokenConsumer>(context);
                     e.ConfigureConsumer<UserByIdConsumer>(context);
                 });
-                //configurator.ReceiveEndpoint("authservice", e =>
-                //{
-                //    e.UseMessageRetry(r => r.Interval(2, 3000));
-                //    e.ConfigureConsumer<UserByTokenConsumer>(context);
-                //});
+                configurator.ReceiveEndpoint("authservice2", e =>
+                {
+                    e.UseMessageRetry(r => r.Interval(2, 3000));
+                    e.ConfigureConsumer<UserByTokenConsumer>(context);
+                });
             });
         });
         //Start rabbitmq bus pour exanges
