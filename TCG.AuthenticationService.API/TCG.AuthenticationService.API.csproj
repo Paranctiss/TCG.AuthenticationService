@@ -7,7 +7,7 @@
         <RootNamespace>TCG.AuthenticationService</RootNamespace>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
+    <!-- <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " /> -->
     <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.3" />
