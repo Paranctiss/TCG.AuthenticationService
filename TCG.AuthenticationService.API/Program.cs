@@ -11,6 +11,7 @@ using TCG.Common.Middlewares.MiddlewareException;
 using TCG.Common.MySqlDb;
 using TCG.Common.Settings;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 var Configuration = builder.Configuration;
 
@@ -27,16 +28,19 @@ builder.Services.AddMapper("User");
 builder.Services.AddHttpClient();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy",
-        builder => builder
-            .WithOrigins("*")
-            .AllowAnyHeader()
-            .AllowCredentials());
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      builder =>
+                      {
+                          builder
+                            .WithOrigins("*") // specifying the allowed origin
+                            .WithMethods("GET", "POST", "PUT", "DELETE") // defining the allowed HTTP method
+                            .AllowAnyHeader(); // allowing any header to be sent
+                      });
 });
 
 builder.Services.AddMassTransitWithRabbitMQ();
 var app = builder.Build();
-app.UseCors("CorsPolicy");
+app.UseCors(MyAllowSpecificOrigins);
 
 
 
