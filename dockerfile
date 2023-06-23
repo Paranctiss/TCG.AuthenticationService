@@ -6,28 +6,26 @@ EXPOSE 7239
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["NuGet.Config", "./"]
-COPY ["NuGet.Config", "TCG.PostService.API/"]
-COPY ["NuGet.Config", "TCG.PostService.Application/"]
-COPY ["NuGet.Config", "TCG.PostService.Domain/"]
-COPY ["NuGet.Config", "TCG.PostService.Persistence/"]
-COPY ["TCG.PostService.API/TCG.PostService.API.csproj", "TCG.PostService.API/"]
-COPY ["TCG.PostService.Application/TCG.PostService.Application.csproj", "TCG.PostService.Application/"]
-COPY ["TCG.PostService.Domain/TCG.PostService.Domain.csproj", "TCG.PostService.Domain/"]
-COPY ["TCG.PostService.Persistence/TCG.PostService.Persistence.csproj", "TCG.PostService.Persistence/"]
-RUN dotnet restore "TCG.PostService.API/TCG.PostService.API.csproj"
-RUN dotnet restore "TCG.PostService.Application/TCG.PostService.Application.csproj"
-RUN dotnet restore "TCG.PostService.Domain/TCG.PostService.Domain.csproj"
-RUN dotnet restore "TCG.PostService.Persistence/TCG.PostService.Persistence.csproj"
+COPY ["NuGet.Config", "TCG.AuthenticationService.API/"]
+COPY ["NuGet.Config", "TCG.AuthenticationService.Application/"]
+COPY ["NuGet.Config", "TCG.AuthenticationService.Domain/"]
+COPY ["NuGet.Config", "TCG.AuthenticationService.Persistence/"]
+COPY ["TCG.AuthenticationService.API/TCG.AuthenticationService.API.csproj", "TCG.AuthenticationService.API/"]
+COPY ["TCG.AuthenticationService.Application/TCG.AuthenticationService.Application.csproj", "TCG.AuthenticationService.Application/"]
+COPY ["TCG.AuthenticationService.Domain/TCG.AuthenticationService.Domain.csproj", "TCG.AuthenticationService.Domain/"]
+COPY ["TCG.AuthenticationService.Persistence/TCG.AuthenticationService.Persistence.csproj", "TCG.AuthenticationService.Persistence/"]
+RUN dotnet restore "TCG.AuthenticationService.API/TCG.AuthenticationService.API.csproj"
+RUN dotnet restore "TCG.AuthenticationService.Application/TCG.AuthenticationService.Application.csproj"
+RUN dotnet restore "TCG.AuthenticationService.Domain/TCG.AuthenticationService.Domain.csproj"
+RUN dotnet restore "TCG.AuthenticationService.Persistence/TCG.AuthenticationService.Persistence.csproj"
 COPY . .
-WORKDIR "/src/TCG.PostService.API"
-RUN dotnet build "TCG.PostService.API.csproj" -c Release -o /app/build
+WORKDIR "/src/TCG.AuthenticationService.API"
+RUN dotnet build "TCG.AuthenticationService.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "TCG.PostService.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "TCG.AuthenticationService.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY ["TCG.PostService.Persistence/keys/rabbitmq.pem", "/app/keys/"]
-RUN chmod 644 /app/keys/rabbitmq.pem
-ENTRYPOINT ["dotnet", "TCG.PostService.API.dll"]
+ENTRYPOINT ["dotnet", "TCG.AuthenticationService.API.dll"]

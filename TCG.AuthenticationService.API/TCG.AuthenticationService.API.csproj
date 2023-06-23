@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>TCG.AuthenticationService</RootNamespace>
+        <UserSecretsId>15c9ee21-39de-431e-892f-f6fa17b1611f</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <!-- <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " /> -->
