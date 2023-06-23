@@ -31,7 +31,8 @@ public static class ApplicationDependencyInjection
                 //On récupère le nom de la table Catalog
                 ////On recupère la config de seeting json pour rabbitMQ
                 var rabbitMQSettings = config.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
-                configurator.Host(rabbitMQSettings.Host);
+                configurator.Host(new Uri(rabbitMQSettings.Host));
+                configurator.ConfigureEndpoints(context);
                 //Defnir comment les queues sont crées dans rabbit
                 configurator.ReceiveEndpoint("authservice", e =>
                 {
