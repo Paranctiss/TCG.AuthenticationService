@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TCG.AuthenticationService.Application.Consumer;
+using TCG.AuthenticationService.Application.Consumer.Messages;
+using TCG.Common.MassTransit.Messages;
 using TCG.Common.Settings;
 
 namespace TCG.CatalogService.Application;
@@ -25,6 +27,7 @@ public static class ApplicationDependencyInjection
         {
             configure.AddConsumer<UserByIdConsumer>();
             configure.AddConsumer<UserByTokenConsumer>();
+            configure.AddConsumer<AddFidelityPointMessageConsumer>();
             configure.UsingRabbitMq((context, configurator) =>
             {
                 var config = context.GetService<IConfiguration>();
@@ -32,7 +35,6 @@ public static class ApplicationDependencyInjection
                 ////On recupère la config de seeting json pour rabbitMQ
                 var rabbitMQSettings = config.GetSection(nameof(RabbitMQSettings)).Get<RabbitMQSettings>();
                 configurator.Host(new Uri(rabbitMQSettings.Host));
-                configurator.ConfigureEndpoints(context);
                 //Defnir comment les queues sont crées dans rabbit
                 configurator.ReceiveEndpoint("authservice", e =>
                 {
@@ -43,6 +45,10 @@ public static class ApplicationDependencyInjection
                 {
                     e.UseMessageRetry(r => r.Interval(2, 3000));
                     e.ConfigureConsumer<UserByTokenConsumer>(context);
+                });
+                configurator.ReceiveEndpoint("added-point-message-queue", e =>
+                {
+                    e.ConfigureConsumer<AddFidelityPointMessageConsumer>(context);
                 });
             });
         });
