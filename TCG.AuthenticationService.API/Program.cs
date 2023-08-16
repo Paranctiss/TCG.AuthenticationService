@@ -21,7 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApplication();
 builder.Services.AddSwaggerGen();
-builder.Services.AddExternals<IKeycloakRepository, KeycloakRepository>();
+builder.Services.AddExternals<IKeycloakRepository, KeycloakRepository>(builder.Configuration["Keycloak:BaseUrl"]);
 builder.Services.AddPersistence<ServiceDbContext>(builder.Configuration);
 builder.Services.Configure<KeycloakSetting>(Configuration.GetSection("Keycloak"));
 builder.Services.AddMapper("User");

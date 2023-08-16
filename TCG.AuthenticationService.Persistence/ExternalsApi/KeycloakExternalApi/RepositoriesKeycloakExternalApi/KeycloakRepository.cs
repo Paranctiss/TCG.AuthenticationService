@@ -170,9 +170,6 @@ public class KeycloakRepository : IKeycloakRepository
 
     private HttpClient GetConfigHttpClient()
     {
-        var httpClient = _clientFactory.CreateClient();
-        var baseUrl = _keycloakSetting.BaseUrl;
-        httpClient.BaseAddress = new Uri(baseUrl);
-        return httpClient;
-    }
+        var clientName = typeof(IKeycloakRepository).FullName;
+        return _clientFactory.CreateClient(clientName);    }
 }
